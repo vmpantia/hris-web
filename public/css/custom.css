@@ -1,0 +1,14 @@
+.cstm-page-title {
+    margin-bottom: 10px;
+    color: #343a40;
+}
+
+.cstm-page-title i {
+    font-size: 20px;
+    margin-right: 8px;
+}
+
+.cstm-page-title span {
+    font-size: 25px;
+    font-weight: bold;
+}

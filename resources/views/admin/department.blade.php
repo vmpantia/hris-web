@@ -4,7 +4,9 @@
 
 
 @section('content')
-    
+    <div id="app">
+        <department-component></department-component>
+    </div>
 @stop
 
 
