@@ -21,7 +21,7 @@ class DepartmentController extends Controller
             return response()->json(['data' => $result], 200);
         }
         catch(Exception $ex) { 
-            return response()->json(['data' => $result], 406);
+            return response()->json(['data' => $result], 422);
         }
     }
 
@@ -33,7 +33,7 @@ class DepartmentController extends Controller
             return response()->json(['data' => $result], 200);
         }
         catch(Exception $ex) { 
-            return response()->json(['data' => $result], 406);
+            return response()->json(['data' => $result], 422);
         }
 
     }
@@ -61,7 +61,7 @@ class DepartmentController extends Controller
         catch(Exception $ex) { 
             //Revert all changes in database
             \DB::rollBack();
-            return response()->json(['err_msg' => $ex], 406);
+            return response()->json(['err_msg' => $ex], 422);
         }
     }
 

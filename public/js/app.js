@@ -5417,28 +5417,17 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   //Declaration of Variables
   data: function data() {
     return {
-      dataTables: [],
-      cities_dataTables: [],
-      dataValue: [],
-      error: [],
+      dep_list: [],
+      manager_list: [],
+      dep_info: [],
+      error_messages: [],
       isNew: false,
-      searchValue: ''
+      keyword: ""
     };
   },
   methods: {
@@ -5452,137 +5441,87 @@ __webpack_require__.r(__webpack_exports__);
       });
 
       //Call function getData() 
-      this.getData();
+      this.getDepartments();
     },
     //Function for formatting date values to this format MM-DD-YYYY hh:mm
     formatDate: function formatDate(date) {
       //Format Dates
       return moment(date).format('MM-DD-YYYY hh:mm');
     },
-    //Function for getting latest data of barangays in the database
-    getData: function getData() {
+    //Function for getting all data from database
+    getDepartments: function getDepartments() {
       var _this = this;
-      //Get Request from url 'barangay/getData'
-      axios.get('barangay/getData').then(function (response) {
-        //Store data from dataTables variable
-        _this.dataTables = response.data.data;
+      axios.get('department/getDepartments').then(function (response) {
+        _this.dep_list = response.data.data;
       });
     },
-    //Function for getting latest data of cities in the database
-    getCitiesData: function getCitiesData() {
+    //Function for creating new data
+    newDepartment: function newDepartment() {
+      //Reset Variables
+      this.dep_info = [];
+      this.error_messages = [];
+      this.isNew = true;
+      this.dep_info.dep_manager_id = '';
+
+      //Open Modal
+      $('#new-modal').modal('show');
+    },
+    //Function for searching specific data in database
+    searchDepartments: function searchDepartments() {
       var _this2 = this;
-      //Get Request from url 'city/getData'
-      axios.get('city/getData').then(function (response) {
-        //Store data from cities_dataTables variable
-        _this2.cities_dataTables = response.data.data;
-      });
-    },
-    //Function for searching specific barangay in the database
-    search: function search() {
-      var _this3 = this;
-      //Check if searchValue has value
-      if (this.searchValue === '') {
-        //If searchValue is empty call function getData()
-        this.getData();
+      //Check if keyword has value
+      if (this.keyword === '') {
+        //If keyword is empty get all
+        this.getDepartments();
         return false;
       }
 
-      //If searchValue is NOT empty get request from url 'barangay/search'
-      axios.get('barangay/search/' + this.searchValue).then(function (response) {
-        //Store data from dataTables variable
-        _this3.dataTables = response.data.data;
+      //If keyword is NOT empty get request from url 'barangay/search'
+      axios.get('department/searchDepartments/' + this.keyword).then(function (response) {
+        _this2.dep_list = response.data.data;
       });
     },
-    //Function for creating new Barangay
-    addNew: function addNew() {
+    //Function for edit data
+    editDepartment: function editDepartment(dep) {
       //Reset Variables
-      this.dataValue = [];
-      this.error = [];
-      this.isNew = true;
-      this.dataValue.city_id = '';
-
-      //Open Modal
-      $('#new-modal').modal('show');
-    },
-    //Function for edit Barangay
-    edit: function edit(id) {
-      var _this4 = this;
-      //Reset Variables
-      this.dataValue = [];
-      this.error = [];
+      this.dep_info = [];
+      this.error_messages = [];
       this.isNew = false;
 
-      //Find id in dataTables
-      Object.keys(this.dataTables).forEach(function (key) {
-        //Check if id is match in the current data in dataTables
-        if (_this4.dataTables[key].id === id) {
-          //Store data in dataValue
-          _this4.dataValue.name = _this4.dataTables[key].name;
-          _this4.dataValue.id = _this4.dataTables[key].id;
-          _this4.dataValue.city_id = _this4.dataTables[key].city_id;
-          return false;
-        }
-      });
+      //Store data in variable
+      this.dep_info.id = dep.id;
+      this.dep_info.dep_name = dep.dep_name;
+      this.dep_info.dep_manager_id = dep.dep_manager_id;
+      this.dep_info.dep_status = dep.dep_status;
 
       //Open Modal
       $('#new-modal').modal('show');
     },
-    //Function for saving Barangay Information
-    store: function store() {
-      var _this5 = this;
-      //Generate Post Request to barangay/store
-      axios.post('barangay/store', {
-        name: this.dataValue.name,
-        city_id: this.dataValue.city_id
+    //Function for saving data
+    saveDepartment: function saveDepartment() {
+      var _this3 = this;
+      //Post save data
+      axios.post('department/saveDepartment', {
+        id: this.dep_info.id,
+        dep_name: this.dep_info.dep_name,
+        dep_manager_id: this.dep_info.dep_manager_id,
+        dep_status: this.dep_info.dep_status
       }).then(function (response) {
         if (response.status === 200) {
-          _this5.messageBox('Success', 'Data Successfully Saved', 'success');
+          _this3.messageBox('Success', 'Data Successfully Saved', 'success');
           $('#new-modal').modal('hide');
         }
       })["catch"](function (errors) {
         if (errors.response.status === 422) {
-          _this5.error = errors.response.data.errors;
+          _this3.error_messages = errors.response.data.errors;
         } else {
-          _this5.messageBox('Failed', errors.response.data.err_msg, 'error');
+          _this3.messageBox('Failed', errors.response.data.err_msg, 'error');
         }
-      });
-    },
-    //Function for updating Barangay Information
-    update: function update() {
-      var _this6 = this;
-      //Generate Post Request to barangay/store
-      axios.post('barangay/store', {
-        id: this.dataValue.id,
-        name: this.dataValue.name,
-        city_id: this.dataValue.city_id
-      }).then(function (response) {
-        if (response.status === 200) {
-          _this6.messageBox('Success', 'Data Successfully Updated', 'success');
-          $('#new-modal').modal('hide');
-        }
-      })["catch"](function (errors) {
-        if (errors.response.status === 422) {
-          _this6.error = errors.response.data.errors;
-        } else {
-          _this6.messageBox('Failed', errors.response.data.err_msg, 'error');
-        }
-      });
-    },
-    //Function for deleting Barangay
-    destroy: function destroy(id) {
-      var _this7 = this;
-      this.$confirm('Are you sure you want to delete this data?', 'Delete?', 'question').then(function (res) {
-        axios.get('barangay/destroy/' + id).then(function (response) {
-          if (response.status === 200) {
-            _this7.messageBox('Success', 'Data Successfully Deleted', 'success');
-          }
-        });
       });
     }
   },
   mounted: function mounted() {
-    this.getData();
-    this.getCitiesData();
+    this.getDepartments();
   }
 });
 
@@ -50132,7 +50071,7 @@ var render = function () {
               "button",
               {
                 staticClass: "btn btn-sm btn-primary",
-                on: { click: _vm.addNew },
+                on: { click: _vm.newDepartment },
               },
               [
                 _c("i", {
@@ -50156,8 +50095,8 @@ var render = function () {
                       {
                         name: "model",
                         rawName: "v-model",
-                        value: _vm.searchValue,
-                        expression: "searchValue",
+                        value: _vm.keyword,
+                        expression: "keyword",
                       },
                     ],
                     staticClass: "form-control float-right",
@@ -50166,13 +50105,13 @@ var render = function () {
                       name: "table_search",
                       placeholder: "Search",
                     },
-                    domProps: { value: _vm.searchValue },
+                    domProps: { value: _vm.keyword },
                     on: {
                       input: function ($event) {
                         if ($event.target.composing) {
                           return
                         }
-                        _vm.searchValue = $event.target.value
+                        _vm.keyword = $event.target.value
                       },
                     },
                   }),
@@ -50183,7 +50122,7 @@ var render = function () {
                       {
                         staticClass: "btn btn-default",
                         attrs: { type: "submit" },
-                        on: { click: _vm.search },
+                        on: { click: _vm.searchDepartments },
                       },
                       [_c("i", { staticClass: "fas fa-search" })]
                     ),
@@ -50202,24 +50141,26 @@ var render = function () {
           [
             _vm._m(1),
             _vm._v(" "),
-            _vm.dataTables.length === 0
+            _vm.dep_list.length === 0
               ? _c("tbody", [_c("tr"), _vm._m(2)])
               : _c(
                   "tbody",
                   [
-                    _vm._l(_vm.dataTables, function (data) {
+                    _vm._l(_vm.dep_list, function (dep) {
                       return [
                         _c("tr", [
-                          _c("td", [_vm._v(_vm._s(data.city_name))]),
+                          _c("td", [_vm._v(_vm._s(dep.dep_name))]),
                           _vm._v(" "),
-                          _c("td", [_vm._v(_vm._s(data.name))]),
+                          _c("td", [_vm._v(_vm._s(dep.dep_manager_id))]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(dep.dep_status))]),
                           _vm._v(" "),
                           _c("td", [
-                            _vm._v(_vm._s(_vm.formatDate(data.created_at))),
+                            _vm._v(_vm._s(_vm.formatDate(dep.created_at))),
                           ]),
                           _vm._v(" "),
                           _c("td", [
-                            _vm._v(_vm._s(_vm.formatDate(data.updated_at))),
+                            _vm._v(_vm._s(_vm.formatDate(dep.updated_at))),
                           ]),
                           _vm._v(" "),
                           _c("td", [
@@ -50229,7 +50170,7 @@ var render = function () {
                                 staticClass: "btn btn-sm btn-warning",
                                 on: {
                                   click: function ($event) {
-                                    return _vm.edit(data.id)
+                                    return _vm.editDepartment(dep)
                                   },
                                 },
                               },
@@ -50239,25 +50180,6 @@ var render = function () {
                                   attrs: { "aria-hidden": "true" },
                                 }),
                                 _vm._v("Edit"),
-                              ]
-                            ),
-                            _vm._v("  \n                                "),
-                            _c(
-                              "button",
-                              {
-                                staticClass: "btn btn-sm btn-danger",
-                                on: {
-                                  click: function ($event) {
-                                    return _vm.destroy(data.id)
-                                  },
-                                },
-                              },
-                              [
-                                _c("i", {
-                                  staticClass: "fa fa-trash mr-2",
-                                  attrs: { "aria-hidden": "true" },
-                                }),
-                                _vm._v(" Delete"),
                               ]
                             ),
                           ]),
@@ -50287,11 +50209,15 @@ var render = function () {
                   _vm.isNew
                     ? _c("h5", { staticClass: "modal-title" }, [
                         _c("i", { staticClass: "fa fa-building" }),
-                        _vm._v("  \n                            New Barangay"),
+                        _vm._v(
+                          "  \n                            New Department"
+                        ),
                       ])
                     : _c("h5", { staticClass: "modal-title" }, [
                         _c("i", { staticClass: "fa fa-building" }),
-                        _vm._v("  \n                            Edit Barangay"),
+                        _vm._v(
+                          "  \n                            Edit Department"
+                        ),
                       ]),
                   _vm._v(" "),
                   _vm._m(3),
@@ -50302,68 +50228,7 @@ var render = function () {
                   _vm._v(" "),
                   _c("div", { staticClass: "form-group mb-3" }, [
                     _c("label", { staticClass: "form-label" }, [
-                      _vm._v("* Select Barangay:"),
-                    ]),
-                    _vm._v(" "),
-                    _c(
-                      "select",
-                      {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.dataValue.city_id,
-                            expression: "dataValue.city_id",
-                          },
-                        ],
-                        staticClass: "form-control",
-                        attrs: { type: "text" },
-                        on: {
-                          change: function ($event) {
-                            var $$selectedVal = Array.prototype.filter
-                              .call($event.target.options, function (o) {
-                                return o.selected
-                              })
-                              .map(function (o) {
-                                var val = "_value" in o ? o._value : o.value
-                                return val
-                              })
-                            _vm.$set(
-                              _vm.dataValue,
-                              "city_id",
-                              $event.target.multiple
-                                ? $$selectedVal
-                                : $$selectedVal[0]
-                            )
-                          },
-                        },
-                      },
-                      [
-                        _c("option", { attrs: { value: "" } }, [
-                          _vm._v("Select Barangay"),
-                        ]),
-                        _vm._v(" "),
-                        _vm._l(_vm.cities_dataTables, function (data) {
-                          return _c(
-                            "option",
-                            { domProps: { value: data.id } },
-                            [_vm._v(_vm._s(data.name))]
-                          )
-                        }),
-                      ],
-                      2
-                    ),
-                    _vm._v(" "),
-                    _vm.error && _vm.error.city_id
-                      ? _c("span", { staticClass: "text-danger" }, [
-                          _vm._v(_vm._s(_vm.error.city_id[0])),
-                        ])
-                      : _vm._e(),
-                  ]),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "form-group mb-3" }, [
-                    _c("label", { staticClass: "form-label" }, [
-                      _vm._v("* Barangay Name:"),
+                      _vm._v("* Department Name:"),
                     ]),
                     _vm._v(" "),
                     _c("input", {
@@ -50371,26 +50236,33 @@ var render = function () {
                         {
                           name: "model",
                           rawName: "v-model",
-                          value: _vm.dataValue.name,
-                          expression: "dataValue.name",
+                          value: _vm.dep_info.dep_name,
+                          expression: "dep_info.dep_name",
                         },
                       ],
                       staticClass: "form-control",
-                      attrs: { type: "text", placeholder: "Barangay" },
-                      domProps: { value: _vm.dataValue.name },
+                      attrs: {
+                        type: "text",
+                        placeholder: "Input Department Name",
+                      },
+                      domProps: { value: _vm.dep_info.dep_name },
                       on: {
                         input: function ($event) {
                           if ($event.target.composing) {
                             return
                           }
-                          _vm.$set(_vm.dataValue, "name", $event.target.value)
+                          _vm.$set(
+                            _vm.dep_info,
+                            "dep_name",
+                            $event.target.value
+                          )
                         },
                       },
                     }),
                     _vm._v(" "),
-                    _vm.error && _vm.error.name
+                    _vm.error_messages && _vm.error_messages.dep_name
                       ? _c("span", { staticClass: "text-danger" }, [
-                          _vm._v(_vm._s(_vm.error.name[0])),
+                          _vm._v(_vm._s(_vm.error_messages.dep_name[0])),
                         ])
                       : _vm._e(),
                   ]),
@@ -50403,25 +50275,14 @@ var render = function () {
                         {
                           staticClass: "btn btn-sm btn-primary",
                           attrs: { type: "button" },
-                          on: { click: _vm.store },
+                          on: { click: _vm.saveDepartment },
                         },
                         [
                           _c("i", { staticClass: "fa fa-cloud" }),
                           _vm._v(" \n                            Save Changes"),
                         ]
                       )
-                    : _c(
-                        "button",
-                        {
-                          staticClass: "btn btn-sm btn-primary",
-                          attrs: { type: "button" },
-                          on: { click: _vm.update },
-                        },
-                        [
-                          _c("i", { staticClass: "fa fa-cloud" }),
-                          _vm._v(" \n                            Save Changes"),
-                        ]
-                      ),
+                    : _vm._e(),
                 ]),
               ]),
             ]
@@ -50448,9 +50309,11 @@ var staticRenderFns = [
     var _c = _vm._self._c || _h
     return _c("thead", [
       _c("tr", [
-        _c("th", [_vm._v("City")]),
+        _c("th", [_vm._v("Department")]),
         _vm._v(" "),
-        _c("th", [_vm._v("Barangay")]),
+        _c("th", [_vm._v("Manager")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Status")]),
         _vm._v(" "),
         _c("th", [_vm._v("Created At")]),
         _vm._v(" "),

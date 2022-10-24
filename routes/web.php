@@ -25,12 +25,11 @@ Route::group(['middleware' => 'auth'], function() {
         return view('welcome');
     });
 
-
     ################## ADMIN ROUTES ##################
     
-        ################## DEPARTMENT ROUTES ##################
-        Route::get('/admin/department', [App\Http\Controllers\DepartmentController::class, 'index']);
-        Route::get('/admin/saveDepartment', [App\Http\Controllers\DepartmentController::class, 'saveDepartment']);
-        Route::get('/admin/getDepartments', [App\Http\Controllers\DepartmentController::class, 'getDepartments']);
-        Route::get('/admin/searchDepartments/{keyword}', [App\Http\Controllers\DepartmentController::class, 'searchDepartments']);
+    ################## DEPARTMENT ROUTES ##################
+    Route::get('/admin/department', [App\Http\Controllers\DepartmentController::class, 'index']);
+    Route::get('/admin/department/getDepartments', [App\Http\Controllers\DepartmentController::class, 'getDepartments']);
+    Route::get('/admin/department/searchDepartments/{keyword}', [App\Http\Controllers\DepartmentController::class, 'searchDepartments']);
+    Route::post('/admin/department/saveDepartment', [App\Http\Controllers\DepartmentController::class, 'saveDepartment']);
 });

@@ -4,7 +4,8 @@
 
 
 @section('content')
-    
+    <div id="app">
+    </div>
 @stop
 
 
